@@ -1,0 +1,10 @@
+{
+  "name": "WidgetBeGone-Editor",
+  "references": [
+    "WidgetBeGone"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": []
+}
