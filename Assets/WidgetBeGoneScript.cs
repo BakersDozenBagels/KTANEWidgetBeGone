@@ -4,12 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using HarmonyLib;
-using Newtonsoft.Json;
 using UnityEngine;
 
 public class WidgetBeGoneScript : MonoBehaviour
 {
-    private KMModSettings _settings;
+    private ModSettings<Settings> _settings;
     private static WidgetBeGoneScript _instance = null;
     private static bool _patched = false, _patchEnabled = false;
     private static Type _batteryType, _indicatorType, _portType, _serialType;
@@ -26,7 +25,7 @@ public class WidgetBeGoneScript : MonoBehaviour
         _instance = this;
         _patchEnabled = true;
 
-        _settings = GetComponent<KMModSettings>();
+        _settings = new ModSettings<Settings>("WidgetBeGone-settings");
 
         if (!_patched)
             StartCoroutine(ApplyPatch());
@@ -150,25 +149,23 @@ public class WidgetBeGoneScript : MonoBehaviour
 
     private static void ReadSettings()
     {
-        try
-        {
-            var removed = JsonConvert.DeserializeObject<List<WidgetType>>(_instance._settings.Settings);
-            _removedTypes = new List<Type>();
-            if (removed.Contains(WidgetType.Batteries))
-                _removedTypes.Add(_batteryType);
-            if (removed.Contains(WidgetType.Indicators))
-                _removedTypes.Add(_indicatorType);
-            if (removed.Contains(WidgetType.Ports))
-                _removedTypes.Add(_portType);
-            if (removed.Contains(WidgetType.SerialNumber))
-                _removedTypes.Add(_serialType);
-        }
-        catch (JsonReaderException)
+        var settings = _instance._settings.Read();
+        if (settings == null)
         {
             Debug.Log("[Widget-Be-Gone] Settings read failed! Ignoring all widgets.");
-            _instance._settings.Settings = "['Batteries', 'Indicators', 'Ports']";
-            _removedTypes = new Type[] { _batteryType, _indicatorType, _portType }.ToList();
+            settings = new Settings() { Batteries = true, Indicators = true, Ports = true };
+            _instance._settings.Write(settings);
         }
+
+        _removedTypes = new List<Type>();
+        if (settings.Batteries)
+            _removedTypes.Add(_batteryType);
+        if (settings.Indicators)
+            _removedTypes.Add(_indicatorType);
+        if (settings.Ports)
+            _removedTypes.Add(_portType);
+        if (settings.SerialNumber)
+            _removedTypes.Add(_serialType);
     }
 
     private static Type[] GetLoadableTypes(Assembly asm)
@@ -187,11 +184,29 @@ public class WidgetBeGoneScript : MonoBehaviour
         }
     }
 
-    private enum WidgetType : byte
+    private class Settings
     {
-        Batteries,
-        Indicators,
-        Ports,
-        SerialNumber,
+        public bool Batteries;
+        public bool Indicators;
+        public bool Ports;
+        public bool SerialNumber;
     }
+
+    private static Dictionary<string, object>[] TweaksEditorSettings = new Dictionary<string, object>[] {
+        new Dictionary<string, object>
+        {
+            { "Filename", "WidgetBeGone-settings.txt" },
+            { "Name", "Widget-Be-Gone" },
+            {
+                "Listings",
+                new List<Dictionary<string, object>>
+                {
+                    new Dictionary<string, object> { { "Key", "Batteries" }, { "Text", "Remove Batteries" } },
+                    new Dictionary<string, object> { { "Key", "Indicators" }, { "Text", "Remove Indicators" } },
+                    new Dictionary<string, object> { { "Key", "Ports" }, { "Text", "Remove Port Plates" } },
+                    new Dictionary<string, object> { { "Key", "SerialNumber" }, { "Text", "Remove the Serial Number" } },
+                }
+            }
+        }
+    };
 }

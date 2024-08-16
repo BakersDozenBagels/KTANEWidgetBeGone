@@ -1,1 +1,6 @@
-['Batteries', 'Indicators', 'Ports']
+{
+  "Batteries": true,
+  "Indicators": true,
+  "Ports": true,
+  "SerialNumber": false
+}
