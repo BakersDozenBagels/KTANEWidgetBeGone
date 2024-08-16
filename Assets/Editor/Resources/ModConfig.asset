@@ -14,7 +14,14 @@ MonoBehaviour:
   id: WidgetBeGone
   title: Widget-Be-Gone
   author: BakersDozenBagels
-  description: 
-  version: 0.1
+  description: 'This mod lets you remove the vanilla widgets from the game, configurable
+    via settings (this include the serial number).
+
+
+    This is meant to be used with replacement widgets provided by mods.
+
+
+    Source: https://github.com/BakersDozenBagels/KTANEWidgetBeGone'
+  version: 1.0
   outputFolder: build
-  previewImage: {fileID: 2800000, guid: 9bde6bb171b053b46a7c66fdd93c9ec9, type: 3}
+  previewImage: {fileID: 2800000, guid: 9edbc6e0f02984349802bac725b0ff67, type: 3}
